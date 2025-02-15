@@ -63,9 +63,8 @@ def create_gui():
     host_entry = tk.Entry(root)
     host_entry.grid(row=0, column=1)
 
-    tk.Label(root, text="Port (optional):").grid(row=1, column=0)
+    port_label = tk.Label(root, text="Port (optional):")
     port_entry = tk.Entry(root)
-    port_entry.grid(row=1, column=1)
 
     # Scan Category Frame
     scan_category_frame = tk.LabelFrame(root, text="Scan Category")
@@ -89,10 +88,16 @@ def create_gui():
         category = scan_category.get()
         if category == "Host Discovery":
             options = ["ICMP Ping", "TCP ACK Ping", "SCTP Init Ping", "ICMP Timestamp Ping", "ICMP Address Mask Ping", "ARP Ping", "Find MAC Address"]
+            port_label.grid_remove()
+            port_entry.grid_remove()
         elif category == "OS Discovery":
             options = ["OS Detection"]
+            port_label.grid_remove()
+            port_entry.grid_remove()
         elif category == "Port Scanning":
             options = ["TCP Connect Scan", "UDP Scan", "TCP Null Scan", "TCP FIN Scan", "Xmas Scan", "TCP ACK Scan", "TCP Window Scan", "TCP Maimon Scan", "IP Protocol Scan"]
+            port_label.grid(row=1, column=0)
+            port_entry.grid(row=1, column=1)
         else:
             options = []
 
@@ -104,6 +109,9 @@ def create_gui():
 
     def scan():
         scan_type = scan_methods.get()
+        if scan_category.get() == "Port Scanning" and not port_entry.get():
+            messagebox.showerror("Input Error", "Please enter a port number for port scanning.")
+            return
         perform_scan(scan_type, host_entry.get(), int(port_entry.get()) if port_entry.get() else None)
 
     tk.Button(root, text="Scan", command=scan).grid(row=4, column=0, columnspan=2, pady=10)
