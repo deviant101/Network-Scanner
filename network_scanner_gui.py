@@ -67,45 +67,48 @@ def create_gui():
     port_entry = tk.Entry(root)
     port_entry.grid(row=1, column=1)
 
-    # Host Discovery Frame
-    host_discovery_frame = tk.LabelFrame(root, text="Host Discovery")
-    host_discovery_frame.grid(row=2, column=0, columnspan=2, pady=10, padx=10, sticky="ew")
+    # Scan Category Frame
+    scan_category_frame = tk.LabelFrame(root, text="Scan Category")
+    scan_category_frame.grid(row=2, column=0, columnspan=2, pady=10, padx=10, sticky="ew")
 
-    host_discovery_options = ["ICMP Ping", "TCP ACK Ping", "SCTP Init Ping", "ICMP Timestamp Ping", "ICMP Address Mask Ping", "ARP Ping", "Find MAC Address"]
-    host_discovery_type = tk.StringVar(root)
-    host_discovery_type.set(host_discovery_options[0])
-    tk.OptionMenu(host_discovery_frame, host_discovery_type, *host_discovery_options).grid(row=0, column=0, padx=10, pady=5)
+    scan_categories = ["Host Discovery", "OS Discovery", "Port Scanning"]
+    scan_category = tk.StringVar(root)
+    scan_category.set(scan_categories[0])
+    tk.OptionMenu(scan_category_frame, scan_category, *scan_categories, command=lambda _: update_scan_methods()).grid(row=0, column=0, padx=10, pady=5)
 
-    # OS Discovery Frame
-    os_discovery_frame = tk.LabelFrame(root, text="OS Discovery")
-    os_discovery_frame.grid(row=3, column=0, columnspan=2, pady=10, padx=10, sticky="ew")
+    # Scan Methods Frame
+    scan_methods_frame = tk.LabelFrame(root, text="Scan Methods")
+    scan_methods_frame.grid(row=3, column=0, columnspan=2, pady=10, padx=10, sticky="ew")
 
-    os_discovery_options = ["OS Detection"]
-    os_discovery_type = tk.StringVar(root)
-    os_discovery_type.set(os_discovery_options[0])
-    tk.OptionMenu(os_discovery_frame, os_discovery_type, *os_discovery_options).grid(row=0, column=0, padx=10, pady=5)
+    scan_methods = tk.StringVar(root)
+    scan_methods.set("ICMP Ping")
+    scan_methods_menu = tk.OptionMenu(scan_methods_frame, scan_methods, "ICMP Ping")
+    scan_methods_menu.grid(row=0, column=0, padx=10, pady=5)
 
-    # Port Scanning Frame
-    port_scanning_frame = tk.LabelFrame(root, text="Port Scanning")
-    port_scanning_frame.grid(row=4, column=0, columnspan=2, pady=10, padx=10, sticky="ew")
+    def update_scan_methods():
+        category = scan_category.get()
+        if category == "Host Discovery":
+            options = ["ICMP Ping", "TCP ACK Ping", "SCTP Init Ping", "ICMP Timestamp Ping", "ICMP Address Mask Ping", "ARP Ping", "Find MAC Address"]
+        elif category == "OS Discovery":
+            options = ["OS Detection"]
+        elif category == "Port Scanning":
+            options = ["TCP Connect Scan", "UDP Scan", "TCP Null Scan", "TCP FIN Scan", "Xmas Scan", "TCP ACK Scan", "TCP Window Scan", "TCP Maimon Scan", "IP Protocol Scan"]
+        else:
+            options = []
 
-    port_scanning_options = ["TCP Connect Scan", "UDP Scan", "TCP Null Scan", "TCP FIN Scan", "Xmas Scan", "TCP ACK Scan", "TCP Window Scan", "TCP Maimon Scan", "IP Protocol Scan"]
-    port_scanning_type = tk.StringVar(root)
-    port_scanning_type.set(port_scanning_options[0])
-    tk.OptionMenu(port_scanning_frame, port_scanning_type, *port_scanning_options).grid(row=0, column=0, padx=10, pady=5)
+        scan_methods.set(options[0])
+        menu = scan_methods_menu["menu"]
+        menu.delete(0, "end")
+        for option in options:
+            menu.add_command(label=option, command=lambda value=option: scan_methods.set(value))
 
     def scan():
-        scan_type = None
-        if host_discovery_type.get() in host_discovery_options:
-            scan_type = host_discovery_type.get()
-        elif os_discovery_type.get() in os_discovery_options:
-            scan_type = os_discovery_type.get()
-        elif port_scanning_type.get() in port_scanning_options:
-            scan_type = port_scanning_type.get()
+        scan_type = scan_methods.get()
         perform_scan(scan_type, host_entry.get(), int(port_entry.get()) if port_entry.get() else None)
 
-    tk.Button(root, text="Scan", command=scan).grid(row=5, column=0, columnspan=2, pady=10)
+    tk.Button(root, text="Scan", command=scan).grid(row=4, column=0, columnspan=2, pady=10)
 
+    update_scan_methods()
     root.mainloop()
 
 if __name__ == "__main__":
